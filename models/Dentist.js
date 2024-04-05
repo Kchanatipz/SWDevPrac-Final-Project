@@ -8,19 +8,19 @@ const DentistSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    yearsOfExperience:{
-        type:int, 
-        required:true
+    yearsOfExperience: {
+      type: int,
+      required: true,
     },
-    expertise:{
-        type:String,
-        required:true
-    }
-  },
-//   {
-//     toJSON: { virtuals: true },
-//     toObject: { virtuals: true },
-//   }
+    expertise: {
+      type: String,
+      required: true,
+    },
+  }
+  //   {
+  //     toJSON: { virtuals: true },
+  //     toObject: { virtuals: true },
+  //   }
 );
 
 // //cascade delete appointments when a hospital is deleted
@@ -37,4 +37,4 @@ const DentistSchema = new mongoose.Schema(
 //   foreignField: "hospital",
 //   justOne: false,
 // });
-module.exports=mongoose.model('Dentist',DentistSchema); //for other files to use
+module.exports = mongoose.model("Dentist", DentistSchema); //for other files to use
