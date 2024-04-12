@@ -9,7 +9,7 @@ const DentistSchema = new mongoose.Schema(
       trim: true,
     },
     yearsOfExperience: {
-      type: int,
+      type: String,
       required: true,
     },
     expertise: {
