@@ -33,8 +33,7 @@ exports.getBooking = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     res.status(400).json({
-      success: false,
-      msg: "HI",
+      success: false
     });
   }
 };
