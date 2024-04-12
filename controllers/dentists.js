@@ -18,10 +18,10 @@ exports.getAllDentists = async (req, res, next) => {
 // desc     Get single dentist
 // route    GET /api/v1/dentists/:id
 // access   Public
-exports.getBooking = async (req, res, next) => {
+exports.getDentist = async (req, res, next) => {
     try {
       const dentist = await Dentist.findById(req.params.id);
-      if (!booking) {
+      if (!dentist) {
         return res.status(400).json({ success: false, msg: "Dentist not found" });
       }
       res.status(200).json({ success: true, data: dentist });
@@ -34,7 +34,7 @@ exports.getBooking = async (req, res, next) => {
 // desc     Create new dentist
 // route    POST /api/v1/dentists
 // access   Private
-exports.createBooking = async (req, res, next) => {
+exports.createDentist = async (req, res, next) => {
     const dentist = await Dentist.create(req.body);
     res.status(201).json({ success: true, data: dentist,msg:`Dentist ${req.body.name} created.`});
 };
@@ -42,7 +42,7 @@ exports.createBooking = async (req, res, next) => {
 // desc     Update dentist
 // route    PUT /api/v1/dentists/:id
 // access   Private
-exports.updateBooking = async (req, res, next) => {
+exports.updateDentist = async (req, res, next) => {
     try {
       const dentist = await Dentist.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
@@ -62,7 +62,7 @@ exports.updateBooking = async (req, res, next) => {
 // desc     Delete dentist
 // route    GET /api/v1/dentists/:id
 // access   Private
-exports.deleteBooking = async (req, res, next) => {
+exports.deleteDentist = async (req, res, next) => {
     try {
       const dentist = await Dentist.findByIdAndDelete(req.params.id);
       if (!dentist) {

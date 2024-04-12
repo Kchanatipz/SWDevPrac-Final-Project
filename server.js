@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const bookings = require("./routes/booking");
+const dentists = require("./routes/dentist");
 const connectDB = require("./config/db");
 
 // Load env vars
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Mount routers
 app.use("/api/v1/bookings", bookings);
+app.use("/api/v1/dentists", dentists);
 
 const PORT = process.env.PORT || 5200;
 const server = app.listen(
