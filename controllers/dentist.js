@@ -73,4 +73,5 @@ exports.deleteBooking = async (req, res, next) => {
       console.log(err);
       res.status(400).json({ success: false });
     }
+    console.log("Hello Phum");
 };
