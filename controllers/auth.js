@@ -1,5 +1,7 @@
 const User = require("../models/UserModel");
-const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs"); //invite encrypt to do something(hash pw) in this code
+const jwt = require("jsonwebtoken"); //call jsonwebtoken extension
+
 //@desc     Register user
 //@route    POST /api/v1/auth/register
 //@access   Public
@@ -8,7 +10,7 @@ exports.register = async (req, res, next) => {
     const { name, telephoneNumber, email, password, role } = req.body;
     //check existence of email
     const existedUser=await User.find({email:email});
-    if (existedUser){
+    if (existedUser.length>0){
       return res.status(400).json({success:false,msg:"This email is already registered"});
     }
     //Create user
@@ -54,7 +56,7 @@ exports.login = async (req, res, next) => {
     if (!isMatch) {
       return res
         .status(401)
-        .json({ success: false, msg: "Invalid credentials" });
+        .json({ success: false, msg: "Password does not match" });
     }
     //create token
     //  const token=user.getSignedJwtToken();
