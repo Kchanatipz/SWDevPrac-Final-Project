@@ -3,6 +3,7 @@ const Booking = require("../models/BookingModel");
 const User = require("../models/UserModel");
 const { protect, authorize } = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
+const Dentist=require("../models/DentistModel");
 
 // desc     Get all bookings
 // route    GET /api/v1/bookings
@@ -80,14 +81,21 @@ exports.createBooking = async (req, res, next) => {
 
   //Make sure token exists
   if (!token || token=='null'){
-      return res.status(401).json({success:false,message:'Not authorize to access this route, Please login'});
+      return res.status(401).json({success:false,message:'Not authorize to access this route. Please login'});
   }
   //verify if the user is creating their own booking
   const decoded = jwt.verify(token,process.env.JWT_SECRET);
   const tokenUser=await User.findById(decoded.id);
+  //Not booking for their own
   if (tokenUser.id!==req.body.user){
-    return res.status(400).json({success:false,msg:"User token does not match the request"});
+    return res.status(400).json({success:false,msg:"User token does not match the request. You canonly book your own booking."});
   }
+  //check if there is the dentist provided
+  const dentist=Dentist.findById(req.body.dentist);
+  if (!dentist){
+    return res.status(400).json({success:false,msg:"Unknown dentist provided."});
+  }
+  //If user have already booked
   if (tokenUser.booking){
     return res.status(400).json({success:false,msg:"User had already booked."});
   }
