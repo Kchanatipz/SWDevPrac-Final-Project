@@ -112,6 +112,9 @@ exports.createBooking = async (req, res, next) => {
   //verify if the user is creating their own booking
   const decoded = jwt.verify(token,process.env.JWT_SECRET);
   const tokenUser=await User.findById(decoded.id);
+  if(!req.body.user ||!req.body.dentist || !req.body.bookingDate){
+    return res.status(400).json({success:false,msg:"Invalid request body"});
+  }
   //Not booking for their own and not an admin
   if (tokenUser.role=="user" && tokenUser.id!==req.body.user){
     return res.status(400).json({success:false,msg:"User token does not match the request. You can only book your own booking."});
@@ -121,12 +124,13 @@ exports.createBooking = async (req, res, next) => {
   if (!dentist){
     return res.status(400).json({success:false,msg:"Unknown dentist provided."});
   }
+  const bookingowner=await User.findById(req.body.user);
   //If user have already booked
-  if (tokenUser.booking){
+  if (bookingowner.booking){
     return res.status(400).json({success:false,msg:"User had already booked."});
   }
   const booking = await Booking.create(req.body);
-  const updatetokenUser=await User.findByIdAndUpdate(decoded.id,{"booking":booking._id});
+  await User.findByIdAndUpdate(req.body.user,{"booking":booking._id});
   res.status(201).json({ success: true, data: booking });
 };
 
@@ -156,6 +160,10 @@ exports.updateBooking = async (req, res, next) => {
   //Not updating for their own and not an admin
   if (tokenuser.role=="user" && decoded.id!==booking.user.id.toString()){
     return res.status(400).json({success:false,msg:"User token does not match the request. You can only edit your own booking."});
+  }
+  //if req.body.user is provided, it must be the same.
+  if (req.body.user!==undefined && req.body.user!==booking.user.toString()){
+    return res.status(400).json({success:false,msg:"Invalid update. Cannot change booking owner."});
   }
   //update dentist and booking date
   await Booking.findByIdAndUpdate(req.params.id,req.body);
@@ -196,7 +204,7 @@ exports.deleteBooking = async (req, res, next) => {
     return res.status(400).json({success:false,msg:"You can only delete your own booking."});
   }
   //Make user's booking null
-  await User.findByIdAndUpdate(decoded.id,{"booking":null});
+  await User.findByIdAndUpdate(booking.user.toString(),{"booking":null});
   await booking.deleteOne();
   res.status(200).json({ succes: true, data: {} });
   } catch (err) {
