@@ -107,3 +107,20 @@ exports.logout=async(req,res,next)=>{
       data:{}
   });
 }
+
+exports.resetPassword=async(req,res,next)=>{
+  const userID=req.body.userID;
+  const password=req.body.password;
+  const salt = await bcrypt.genSalt(10);
+  const newpassword = await bcrypt.hash(password, salt);
+  try{
+    if (!(await User.findById(userID))){
+      return res.status(400).json({success:false,msg:"User ID does not exist"});
+    }
+    const user=await User.findByIdAndUpdate(userID,{password:newpassword});
+    return res.status(200).json({success:true,data:user});
+  } catch(err){
+    console.log(err);
+    return res.status(400).json({success:false,from:"controllers"});
+  }
+}
