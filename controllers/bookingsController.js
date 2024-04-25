@@ -36,10 +36,10 @@ exports.getBooking = async (req, res, next) => {
   // console.log(req);
   try {
     const booking = await Booking.findById(req.params.id);
-    const bookingowner=booking.user;
     if (!booking) {
       return res.status(400).json({ success: false, msg: "Booking not found" });
     }
+    const bookingowner=booking.user;
     //see token
     let token;
     if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
@@ -109,16 +109,31 @@ exports.createBooking = async (req, res, next) => {
 // access   Private
 exports.updateBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
       return res.status(400).json({ success: false, msg: "Booking not found" });
     }
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
 
-    res.status(200).json({ success: true, data: booking });
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Not authorize to access this route. Please login'});
+  }
+  //verify if the user is creating their own booking
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const  tokenuser=User.findById(decoded.id);
+  //Not updating for their own and not an admin
+  if (tokenuser.role=="user" && decoded.id!==booking.user.id.toString()){
+    return res.status(400).json({success:false,msg:"User token does not match the request. You can only edit your own booking."});
+  }
+  //update dentist and booking date
+  await Booking.findByIdAndUpdate(req.params.id,req.body);
+  res.status(200).json({ success: true, data: booking });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false });

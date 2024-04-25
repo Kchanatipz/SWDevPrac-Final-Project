@@ -1,5 +1,5 @@
 const User = require("../models/UserModel");
-
+const jwt = require("jsonwebtoken");
 //@desc     Register user
 //@route    POST /api/v1/auth/register
 //@access   Public
@@ -85,10 +85,4 @@ const sendTokenResponse = (user, statusCode, res) => {
     // //end for frontend
     token,
   });
-};
-
-//get current logged user
-exports.getMe = async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-  res.status(200).json({ success: true, data: user });
 };
