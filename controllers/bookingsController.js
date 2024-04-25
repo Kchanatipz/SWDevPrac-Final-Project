@@ -86,8 +86,8 @@ exports.createBooking = async (req, res, next) => {
   //verify if the user is creating their own booking
   const decoded = jwt.verify(token,process.env.JWT_SECRET);
   const tokenUser=await User.findById(decoded.id);
-  //Not booking for their own
-  if (tokenUser.id!==req.body.user){
+  //Not booking for their own and not an admin
+  if (tokenUser.role=="user" && tokenUser.id!==req.body.user){
     return res.status(400).json({success:false,msg:"User token does not match the request. You can only book your own booking."});
   }
   //check if there is the dentist provided
@@ -149,7 +149,9 @@ exports.deleteBooking = async (req, res, next) => {
   }
   //verify if the user is creating their own booking
   const decoded = jwt.verify(token,process.env.JWT_SECRET);
-  if (booking.user.toString()!==decoded.id){
+  const  tokenuser=User.findById(decoded.id);
+  //User is not an admin and is deleting other's booking.
+  if (tokenuser.role==="user" &&booking.user.toString()!==decoded.id){
     return res.status(400).json({success:false,msg:"You can only delete your own booking."});
   }
   //Make user's booking null
