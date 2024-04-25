@@ -1,5 +1,5 @@
 const { json } = require("express");
-const Dentist = require("../models/Dentist");
+const Dentist = require("../models/DentistModel");
 
 // desc     Get all dentists
 // route    GET /api/v1/dentists
@@ -41,13 +41,11 @@ exports.getDentist = async (req, res, next) => {
 exports.createDentist = async (req, res, next) => {
   const dentist = await Dentist.create(req.body);
 
-  res
-    .status(201)
-    .json({
-      success: true,
-      data: dentist,
-      msg: `Dentist ${req.body.name} created.`,
-    });
+  res.status(201).json({
+    success: true,
+    data: dentist,
+    msg: `Dentist ${req.body.name} created.`,
+  });
 };
 
 // desc     Update dentist

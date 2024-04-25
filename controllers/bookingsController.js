@@ -1,5 +1,5 @@
 const { json } = require("express");
-const Booking = require("../models/Booking");
+const Booking = require("../models/BookingModel");
 
 // desc     Get all bookings
 // route    GET /api/v1/bookings
