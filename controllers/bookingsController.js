@@ -130,7 +130,7 @@ exports.createBooking = async (req, res, next) => {
     return res.status(400).json({success:false,msg:"User had already booked."});
   }
   const booking = await Booking.create(req.body);
-  await User.findByIdAndUpdate(decoded.id,{"booking":booking._id});
+  await User.findByIdAndUpdate(req.body.user,{"booking":booking._id});
   res.status(201).json({ success: true, data: booking });
 };
 
