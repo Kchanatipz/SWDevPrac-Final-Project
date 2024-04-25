@@ -69,6 +69,32 @@ exports.getBooking = async (req, res, next) => {
   }
 };
 
+// desc     Get single booking of this user
+// route    GET /api/v1/bookings/mybooking
+// access   Public
+exports.getBookingofCurrentUser= async (req, res, next) => {
+  try{
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Login to see your booking'});
+  }
+  //get the bookingid of this user
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const user=await User.findById(decoded.id);
+  const booking=await Booking.findById(user.booking);
+  return res.status(200).json({success:true,data:booking});
+  }catch(err){
+    console.log(err);
+    res.status(400).json({success:false});
+  }
+}
+
 // desc     Create new booking
 // route    POST /api/v1/bookings
 // access   Private
