@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
     required: [true, "Please enter telephone number"],
     minlength: 9, //in case not a mobile phone
     maxlength: 10,
+    unique:false
   },
   email: {
     type: String,

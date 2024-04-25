@@ -35,36 +35,28 @@ exports.getBooking = async (req, res, next) => {
   // console.log(req);
   try {
     const booking = await Booking.findById(req.params.id);
-    const bookingowner = booking.user;
+    const bookingowner=booking.user;
     if (!booking) {
       return res.status(400).json({ success: false, msg: "Booking not found" });
     }
     //see token
     let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
+    if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+        token=req.headers.authorization.split(' ')[1];
     }
 
     //Make sure token exists
-    if (!token || token == "null") {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorize to access this route, Please login",
-      });
+    if (!token || token=='null'){
+        return res.status(401).json({success:false,message:'Not authorize to access this route, Please login'});
     }
 
     //verify if the user is the owner of this booking
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token,process.env.JWT_SECRET);
+    const user=await User.findById(decoded.id);
     console.log(user.id);
     console.log(bookingowner);
-    if (user.role === "user" && user.id != bookingowner) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "This is not your booking!!" });
+    if (user.role==="user" && user.id!==bookingowner.toString()){
+      return res.status(400).json({success:false,msg:"This is not your booking!!"});
     }
 
     res.status(200).json({ success: true, data: booking });
@@ -100,10 +92,7 @@ exports.createBooking = async (req, res, next) => {
     return res.status(400).json({success:false,msg:"User had already booked."});
   }
   const booking = await Booking.create(req.body);
-  const temp=booking._id;
-  console.log(temp);
-  tokenUser.booking=temp;
-  tokenUser.save();
+  const updatetokenUser=await User.findByIdAndUpdate(decoded.id,{"booking":booking._id});
   res.status(201).json({ success: true, data: booking });
 };
 
