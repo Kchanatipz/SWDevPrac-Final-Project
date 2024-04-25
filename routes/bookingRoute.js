@@ -8,9 +8,10 @@ const {
 } = require("../controllers/bookingsController");
 
 const router = express.Router();
+const {protect, authorize}=require('../middleware/auth');
 const app = express();
 
-router.route("/").get(getAllBookings).post(createBooking);
-router.route("/:id").get(getBooking).put(updateBooking).delete(deleteBooking);
+router.route("/").get(protect,authorize('admin'),getAllBookings).post(protect,createBooking);
+router.route("/:id").get(protect,getBooking).put(protect,updateBooking).delete(protect,deleteBooking);
 
 module.exports = router;
