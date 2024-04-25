@@ -6,6 +6,11 @@ const jwt = require("jsonwebtoken");
 exports.register = async (req, res, next) => {
   try {
     const { name, telephoneNumber, email, password, role } = req.body;
+    //check existence of email
+    const existedUser=await User.find({email:email});
+    if (existedUser){
+      return res.status(400).json({success:false,msg:"This email is already registered"});
+    }
     //Create user
     const user = await User.create({
       name,
@@ -42,7 +47,7 @@ exports.login = async (req, res, next) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid credentials" });
+        .json({ success: false, msg: "This email has never been registered." });
     }
     //check if password matches
     const isMatch = await user.matchPassword(password);
