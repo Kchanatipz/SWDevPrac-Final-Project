@@ -1,5 +1,6 @@
 const { json } = require("express");
 const Booking = require("../models/BookingModel");
+const {protect, authorize}=require('../middleware/auth');
 
 // desc     Get all bookings
 // route    GET /api/v1/bookings
@@ -24,9 +25,13 @@ exports.getBooking = async (req, res, next) => {
   // console.log(req);
   try {
     const booking = await Booking.findById(req.params.id);
-
     if (!booking) {
       return res.status(400).json({ success: false, msg: "Booking not found" });
+    }
+    //verify if the user is the owner of this booking
+    const decoded = jwt.verify(token,process.env.JWT_SECRET);
+    if (decoded.id!==booking._id){
+      return res.status(400).json({success:false,msg:"This is not your booking!!"});
     }
 
     res.status(200).json({ success: true, data: booking });
