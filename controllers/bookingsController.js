@@ -54,8 +54,8 @@ exports.getBooking = async (req, res, next) => {
     //verify if the user is the owner of this booking
     const decoded = jwt.verify(token,process.env.JWT_SECRET);
     const user=await User.findById(decoded.id);
-    console.log(user.id);
-    console.log(bookingowner);
+    // console.log(user.id);
+    // console.log(bookingowner);
     if (user.role==="user" && user.id!==bookingowner.toString()){
       return res.status(400).json({success:false,msg:"This is not your booking!!"});
     }
@@ -88,7 +88,7 @@ exports.createBooking = async (req, res, next) => {
   const tokenUser=await User.findById(decoded.id);
   //Not booking for their own
   if (tokenUser.id!==req.body.user){
-    return res.status(400).json({success:false,msg:"User token does not match the request. You canonly book your own booking."});
+    return res.status(400).json({success:false,msg:"User token does not match the request. You can only book your own booking."});
   }
   //check if there is the dentist provided
   const dentist=Dentist.findById(req.body.dentist);
@@ -136,7 +136,26 @@ exports.deleteBooking = async (req, res, next) => {
       return res.status(400).json({ succes: false, msg: "Booking not found" });
     }
 
-    res.status(200).json({ succes: true, data: {} });
+    //Check if the user is the owner of this booking
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Not authorize to access this route. Please login'});
+  }
+  //verify if the user is creating their own booking
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  if (booking.user.toString()!==decoded.id){
+    return res.status(400).json({success:false,msg:"You can only delete your own booking."});
+  }
+  //Make user's booking null
+  await User.findByIdAndUpdate(decoded.id,{"booking":null});
+  await booking.deleteOne();
+  res.status(200).json({ succes: true, data: {} });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false });
