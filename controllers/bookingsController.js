@@ -1,5 +1,5 @@
 const { json } = require("express");
-const Booking = require("../models/Booking");
+const Booking = require("../models/BookingModel");
 
 // desc     Get all bookings
 // route    GET /api/v1/bookings
@@ -33,7 +33,7 @@ exports.getBooking = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     res.status(400).json({
-      success: false
+      success: false,
     });
   }
 };
@@ -45,7 +45,7 @@ exports.createBooking = async (req, res, next) => {
   // console.log(req);
 
   const booking = await Booking.create(req.body);
-
+  r;
   res.status(201).json({ success: true, data: booking });
 };
 

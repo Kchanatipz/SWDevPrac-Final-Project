@@ -5,7 +5,7 @@ const {
   createDentist,
   updateDentist,
   deleteDentist,
-} = require("../controllers/dentists");
+} = require("../controllers/dentistsController");
 
 const router = express.Router();
 const {protect, authorize}=require('../middleware/auth');

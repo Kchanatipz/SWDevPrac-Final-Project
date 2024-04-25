@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const bookings = require("./routes/booking");
-const dentists = require("./routes/dentist");
+const bookings = require("./routes/bookingRoute");
+const dentists = require("./routes/dentistRoute");
 const connectDB = require("./config/db");
 const auth = require('./routes/auth');
 const cookieParser=require('cookie-parser');
