@@ -64,9 +64,30 @@ exports.getBooking = async (req, res, next) => {
 // route    POST /api/v1/bookings
 // access   Private
 exports.createBooking = async (req, res, next) => {
-  // console.log(req);
+  //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
 
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Not authorize to access this route, Please login'});
+  }
+  //verify if the user is creating their own booking
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const tokenUser=await User.findById(decoded.id);
+  if (tokenUser.id!==req.body.user){
+    return res.status(400).json({success:false,msg:"User token does not match the request"});
+  }
+  if (tokenUser.booking){
+    return res.status(400).json({success:false,msg:"User had already booked."});
+  }
   const booking = await Booking.create(req.body);
+  const temp=booking._id;
+  console.log(temp);
+  tokenUser.booking=temp;
+  tokenUser.save();
   res.status(201).json({ success: true, data: booking });
 };
 
