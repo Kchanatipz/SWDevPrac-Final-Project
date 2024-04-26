@@ -10,16 +10,7 @@ const Dentist=require("../models/DentistModel");
 // access   Public
 exports.getAllBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.find()
-      .populate({
-        path: "User",
-        select: "name email",
-      })
-      .populate({
-        path: "Dentist",
-        select: "name yearsOfExperience",
-      });
-
+    const bookings = await Booking.find();
     res
       .status(200)
       .json({ succes: true, count: bookings.length, data: bookings });
