@@ -16,6 +16,8 @@ const HTML = `<!DOCTYPE html>
 // route    POST /api/v1/user/resetpassword/:id
 // access   Public
 exports.resetUserPassword = async (req, res, next) => {
+  const receiver = await User.findById(req.params.id);
+  console.log(receiver.email);
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
@@ -32,9 +34,9 @@ exports.resetUserPassword = async (req, res, next) => {
       name: "Chanatip X Phumsiri",
       address: process.env.SENDER,
     },
-    to: "chanatipzaza2003@gmail.com",
-    subject: "Please reset your password",
-    text: "This is a test email sent using Nodemailer.",
+    to: receiver.email,
+    subject: "Reset your password",
+    text: "Click this button below that will lead you to another website.",
     html: `${HTML}${req.params.id}"><div class="button-container"><button type="submit">Reset Password</button></div></form></div></body></html>`,
   };
 
