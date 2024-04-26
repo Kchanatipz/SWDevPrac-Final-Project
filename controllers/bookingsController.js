@@ -71,7 +71,7 @@ exports.getBooking = async (req, res, next) => {
 
 // desc     Get single booking of this user
 // route    GET /api/v1/bookings/mybooking
-// access   Public
+// access   Private
 exports.getBookingofCurrentUser= async (req, res, next) => {
   try{
     //see token
@@ -134,6 +134,45 @@ exports.createBooking = async (req, res, next) => {
   res.status(201).json({ success: true, data: booking });
 };
 
+// desc     Create new booking
+// route    POST /api/v1/mybookings
+// access   Private
+exports.createBookingforcurrentuser = async (req,res,next) => {
+  try{
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Login to create your booking'});
+  }
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const tokenUser=await User.findById(decoded.id); //booking owner
+  if(!req.body.dentist || !req.body.bookingDate){
+    return res.status(400).json({success:false,msg:"Invalid request body"});
+  }
+  //check if there is the dentist provided
+  const dentist=Dentist.findById(req.body.dentist);
+  if (!dentist){
+    return res.status(400).json({success:false,msg:"Unknown dentist provided."});
+  }
+  //If user have already booked
+  if (tokenUser.booking){
+    return res.status(400).json({success:false,msg:"User had already booked."});
+  }
+  const newRequestBody = { user: decoded.id,...req.body};
+  const booking = await Booking.create(newRequestBody);
+  await User.findByIdAndUpdate(decoded.id,{"booking":booking._id});
+  res.status(201).json({ success: true, data: booking });
+  }catch(err){
+    console.log(err);
+    res.status(400).json({success:false});
+  }
+}
+
 // desc     Update booking
 // route    PUT /api/v1/bookings/:id
 // access   Private
@@ -156,7 +195,7 @@ exports.updateBooking = async (req, res, next) => {
   }
   //verify if the user is creating their own booking
   const decoded = jwt.verify(token,process.env.JWT_SECRET);
-  const  tokenuser=User.findById(decoded.id);
+  const  tokenuser=await User.findById(decoded.id);
   //Not updating for their own and not an admin
   if (tokenuser.role=="user" && decoded.id!==booking.user.id.toString()){
     return res.status(400).json({success:false,msg:"User token does not match the request. You can only edit your own booking."});
@@ -173,6 +212,35 @@ exports.updateBooking = async (req, res, next) => {
     res.status(400).json({ success: false });
   }
 };
+
+// desc     Update booking
+// route    PUT /api/v1/bookings/mybooking
+// access   Private
+exports.updateMyBooking =async (req,res,next)=>{
+  try {
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Not authorize to access this route. Please login'});
+  }
+  //verify if the user is creating their own booking
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const tokenuser=await User.findById(decoded.id); //booking owner
+  if (!tokenuser.booking || tokenuser.booking===null){
+    return res.status(400).json({success:false,message:"User haven't booked one."})
+  }
+  //update dentist and booking date
+  await Booking.findByIdAndUpdate(tokenuser.booking,req.body);
+  res.status(200).json({ success: true, data: tokenuser});
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
+  }
+}
 
 // desc     Delete booking
 // route    GET /api/v1/bookings/:id
@@ -206,6 +274,38 @@ exports.deleteBooking = async (req, res, next) => {
   //Make user's booking null
   await User.findByIdAndUpdate(booking.user.toString(),{"booking":null});
   await booking.deleteOne();
+  res.status(200).json({ succes: true, data: {} });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
+  }
+};
+
+// desc     Delete booking
+// route    GET /api/v1/bookings/mybooking
+// access   Private
+exports.deletemyBooking = async (req, res, next) => {
+  try {
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Not authorize to access this route. Please login'});
+  }
+  //verify if the user is creating their own booking
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const  tokenuser=await User.findById(decoded.id);
+  if (!tokenuser.booking || tokenuser.booking=="null"){
+    return res.status(400).json({success:false,msg:"User has no booking"});
+  }
+  //delete booking
+  await Booking.findByIdAndDelete(tokenuser.booking);
+  //Make user's booking null
+  await User.findByIdAndUpdate(decoded.id,{"booking":null});
   res.status(200).json({ succes: true, data: {} });
   } catch (err) {
     console.log(err);
