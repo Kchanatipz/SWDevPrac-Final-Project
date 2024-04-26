@@ -6,7 +6,8 @@ const {
   updateBooking,
   deleteBooking,
   getBookingofCurrentUser,
-  createBookingforcurrentuser
+  createBookingforcurrentuser,
+  updateMyBooking
 } = require("../controllers/bookingsController");
 
 const router = express.Router();
@@ -17,7 +18,7 @@ router
   .route("/")
   .get(protect, authorize("admin"), getAllBookings)
   .post(protect, createBooking);
-  router.route("/mybooking").get(protect,getBookingofCurrentUser).post(protect,createBookingforcurrentuser);
+  router.route("/mybooking").get(protect,getBookingofCurrentUser).post(protect,createBookingforcurrentuser).put(protect,updateMyBooking);
 router
   .route("/:id")
   .get(protect, getBooking)
