@@ -1,9 +1,7 @@
-Software Development Pracice Final Project
+Software Development Practice Final Project
 
 Created by:
-
     - [Phumsiri Sumativit](https://github.com/Phumsirii)
-    
     - [Chanatip Kowsurat](https://github.com/Kchanatipz)
 
 Additional Requirement
