@@ -5,20 +5,17 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 
 const HTML = `<!DOCTYPE html>
-<html lang="en">w
+<html lang="en">
   <head><style>
       body {font-family: sans-serif;display: flex;justify-content: center;align-items: center;min-height: 100vh;background-color: #f0f0f0;}
       .container {background-color: #fff;padding: 30px;border-radius: 5px;box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);width: 400px;} h1 {text-align: center;margin-bottom: 20px;} .button-container {text-align: center;}
       button {background-color: #3498db;color: #fff;padding: 10px 20px;border: none;border-radius: 10px;cursor: pointer;transition: background-color 0.2s ease-in-out;}button:hover {background-color: #0c6cac;}</style></head>
-  <body><div class="container"><h1>Click this button to reset your password</h1><form action="http://localhost:5200/resetpassword/confirm"><div class="button-container"><button type="submit">Reset Password</button></div></form></div></body>
-</html>`;
+  <body><div class="container"><h1>Click this button to reset your password</h1><form action="http://localhost:5200/api/v1/user/resetpassword/ui/`;
 
 // desc     Reset user's password
 // route    POST /api/v1/user/resetpassword/:id
 // access   Public
 exports.resetUserPassword = async (req, res, next) => {
-  let newPassword;
-
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
@@ -38,7 +35,7 @@ exports.resetUserPassword = async (req, res, next) => {
     to: "chanatipzaza2003@gmail.com",
     subject: "Please reset your password",
     text: "This is a test email sent using Nodemailer.",
-    html: HTML,
+    html: `${HTML}${req.params.id}"><div class="button-container"><button type="submit">Reset Password</button></div></form></div></body></html>`,
   };
 
   try {
