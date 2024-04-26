@@ -71,7 +71,7 @@ exports.getBooking = async (req, res, next) => {
 
 // desc     Get single booking of this user
 // route    GET /api/v1/bookings/mybooking
-// access   Public
+// access   Private
 exports.getBookingofCurrentUser= async (req, res, next) => {
   try{
     //see token
@@ -133,6 +133,45 @@ exports.createBooking = async (req, res, next) => {
   await User.findByIdAndUpdate(req.body.user,{"booking":booking._id});
   res.status(201).json({ success: true, data: booking });
 };
+
+// desc     Create new booking
+// route    POST /api/v1/currentuserbookings
+// access   Private
+exports.createBookingforcurrentuser = async (req,res,next) => {
+  try{
+    //see token
+  let token;
+  if (req.headers.authorization &&req.headers.authorization.startsWith('Bearer')){
+      token=req.headers.authorization.split(' ')[1];
+  }
+
+  //Make sure token exists
+  if (!token || token=='null'){
+      return res.status(401).json({success:false,message:'Login to create your booking'});
+  }
+  const decoded = jwt.verify(token,process.env.JWT_SECRET);
+  const tokenUser=await User.findById(decoded.id); //booking owner
+  if(!req.body.dentist || !req.body.bookingDate){
+    return res.status(400).json({success:false,msg:"Invalid request body"});
+  }
+  //check if there is the dentist provided
+  const dentist=Dentist.findById(req.body.dentist);
+  if (!dentist){
+    return res.status(400).json({success:false,msg:"Unknown dentist provided."});
+  }
+  //If user have already booked
+  if (tokenUser.booking){
+    return res.status(400).json({success:false,msg:"User had already booked."});
+  }
+  const newRequestBody = { user: decoded.id,...req.body};
+  const booking = await Booking.create(newRequestBody);
+  await User.findByIdAndUpdate(decoded.id,{"booking":booking._id});
+  res.status(201).json({ success: true, data: booking });
+  }catch(err){
+    console.log(err);
+    res.status(400).json({success:false});
+  }
+}
 
 // desc     Update booking
 // route    PUT /api/v1/bookings/:id
