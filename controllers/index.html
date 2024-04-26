@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <title>Forgot Password UI</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background-color: #ffffff;
+        background-repeat: no-repeat;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15rem 0;
+      }
+      .card {
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        background-color: rgba(0, 0, 0, 0.75);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.125);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 40px;
+      }
+      .lock {
+        font-size: 3rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin-top: 10px;
+        text-transform: uppercase;
+      }
+      p {
+        font-size: 12px;
+      }
+      .passInput {
+        margin-top: 15px;
+        width: 80%;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid deepskyblue;
+        font-size: 15px;
+        color: white;
+        outline: none;
+      }
+      button {
+        margin-top: 15px;
+        width: 80%;
+        background-color: deepskyblue;
+        color: white;
+        padding: 10px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="card" id="resetpassword-form">
+      <p class="lock"><i> Forgot Password ?</i></p>
+      <h2>You can reset your Password here</h2>
+      <input
+        type="password"
+        class="passInput"
+        placeholder="new password"
+        id="newpassword"
+      />
+      <button type="submit">Save new password</button>
+    </form>
+  </body>
+  <script>
+    document
+      .getElementById("resetpassword-form")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = window.location.pathname.split("/").pop();
+        const newpassword = document.querySelector("#newpassword").value;
+        console.log(id);
+        console.log(newpassword);
+        const response = await fetch(
+          "http://localhost:5200/api/v1/user/resetpassword/confirm",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: id,
+              password: newpassword,
+            }),
+          }
+        );
+      });
+  </script>
+</html>
