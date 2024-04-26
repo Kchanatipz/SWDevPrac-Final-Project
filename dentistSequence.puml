@@ -1,0 +1,84 @@
+@startuml Manage Dentist
+
+title "Manage Dentist"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:dentist" as dentist
+participant "<<middleware>>\n:auth" as middleware
+participant "<<service>>\n:jwt" as jwt
+participant "<<controllers>>\n:dentist" as controllerDentists
+participant "<<model>>\n:dentist" as modelDentist
+participant "<<model>>\n:user" as modelUser
+database "<<MongoDB>>\n:dentist" as DentistDatabase
+database "<<MongoDB>>\n:user" as userDatabase
+
+client->server ++:req.post('/dentists')
+server->dentist --++:app.use('api/v1/dentists',dentists)
+dentist->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->dentist --:next
+dentist -> controllerDentists --++:createDentist
+controllerDentists->modelDentist ++:create(req.body)
+modelDentist ->dentistDatabase ++: DentistSchema
+dentistDatabase --> modelDentist --: dentist
+controllerDentists <-- modelDentist --:dentist
+controllerDentists->client --:response
+
+client->server ++:req.get('/dentists')
+server->dentist --++:app.use('api/v1/dentists',dentists)
+dentist -> controllerDentists --++:getDentists
+controllerDentists->modelDentist ++:find()
+modelDentist ->dentistDatabase ++: DentistSchema
+dentistDatabase --> modelDentist --: dentist
+controllerDentists <-- modelDentist --:dentist
+controllerDentists->client --:response
+
+client->server ++:req.get('/dentists/:id')
+server->dentist --++:app.use('api/v1/dentists',dentists)
+dentist -> controllerDentists --++:getDentist
+controllerDentists->modelDentist ++:findById(req.param.id)
+modelDentist ->dentistDatabase ++: DentistSchema
+dentistDatabase --> modelDentist --: dentist
+controllerDentists <-- modelDentist --:dentist
+controllerDentists->client --:response
+
+client->server ++:req.put('/dentists/:id')
+server->dentist --++:app.use('api/v1/dentists',dentists)
+dentist->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->dentist --:next
+dentist -> controllerDentists --++:updateDentist
+controllerDentists->modelDentist ++:findByIdAndUpdate(req.params.id,req.body);
+modelDentist ->dentistDatabase ++: DentistSchema
+dentistDatabase --> modelDentist --: dentist
+controllerDentists <-- modelDentist --:dentist
+controllerDentists->client --:response
+
+client->server ++:req.delete('/dentists/:id')
+server->dentist --++:app.use('api/v1/dentists',dentists)
+dentist->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->dentist --:next
+dentist -> controllerDentists --++:deletedentist
+controllerDentists->modelDentist ++:findByIdAndDelete(req.param.id)
+modelDentist ->dentistDatabase ++: DentistSchema
+controllerDentists->client --:
+
+
+@enduml

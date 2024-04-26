@@ -1,0 +1,94 @@
+@startuml Manage Class_Diagram
+title "DentistBookingService Class Diagram"
+left to right direction
+class "<<Application>>\nDentistBookingService" as BookingService{}
+
+class "<<Resource>>\nDentists" as ResourceDentists{
+    <<GET>> +getDentists():Dentist
+    <<POST>> +createDentist():Dentist
+}
+
+class "<<Resource>>\nDentist" as ResourceDentist {
+    <<GET>> +getDentist(): Dentist
+    <<PUT>> +updateDentist(): Dentist
+    <<DELETE>> +deleteDentist(): void
+}
+
+class "<<Representation>>\nDentist" as RepresentationDentist {
+    -name
+    -yearsOfExperience
+    -expertise
+}
+
+class "<<Resource>>\nAuth" as ResourceAuth{}
+
+class "<<Resource>>\nAuth" as ResourceAuthregister{
+    <<POST>> + register(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthlogin{
+    <<POST>> + login(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthlogout{
+    <<POST>> + logout(): User
+}
+class "<<Resource>>\nAuth" as ResourceAuthresetPassword{
+    <<POST>> + resetpassword(): User
+}
+
+class "<<Representation>>\nUser" as RepresentationUser {
+    -name
+    -telephoneNumber
+    -email
+    -role
+    -password
+    -booking
+    -createdAt
+}
+
+class "<<Resource>>\nBookings" as ResourceBookings {
+    <<GET>> + getBookings(): Booking[]
+    <<POST>> + addBooking():Booking
+}
+
+class "<<Resource>>\nBooking" as ResourceBooking {
+    <<GET>> + getBooking(): Booking
+    <<PUT>> + updateBooking(): Booking
+    <<DELETE>> + deleteBooking(): Booking
+}
+
+class "<<Representation>>\nBooking" as RepresentationBooking {
+    -bookingDate
+    -user
+    -dentist
+    -createAt
+}
+
+BookingService ..> ResourceDentists:"/Dentists\n<<Path>>"
+BookingService ..> ResourceAuth:"/auth\n<<Path>>"
+BookingService ..> ResourceBookings:"/Bookings\n<<Path>>"
+
+ResourceDentist ..> RepresentationDentist: "<<use>>"
+ResourceDentists ..> ResourceDentist: "/{DentistId}\n<<Path>>"
+ResourceDentists ..> RepresentationDentist: "<<use>>"
+
+
+ResourceAuth ..> ResourceAuthregister:"/register\n<<Path>>"
+ResourceAuth ..> ResourceAuthlogin:"/login\n<<Path>>"
+ResourceAuth ..> ResourceAuthlogout:"/logout\n<<Path>>"
+ResourceAuth ..> ResourceAuthresetPassword:"/resetpassword\n<<Path>>"
+
+ResourceAuthregister ..>RepresentationUser: "<<use>>"
+ResourceAuthlogin ..>RepresentationUser: "<<use>>"
+ResourceAuthlogout ..>RepresentationUser: "<<use>>"
+ResourceAuthresetPassword ..>RepresentationUser: "<<use>>"
+
+ResourceBookings ..> ResourceBooking:"/{BookingId}\n<<Path>>"
+ResourceBooking ..> RepresentationBooking:"/<<use>>"
+ResourceBooking ..> RepresentationUser:"/<<use>>"
+ResourceBooking ..> RepresentationDentist:"/<<use>>"
+ResourceBookings ..> RepresentationBooking:"/<<use>>"
+ResourceBookings ..> RepresentationUser:"/<<use>>"
+ResourceBookings ..> RepresentationDentist:"<<use>>"
+ResourceBooking ..> RepresentationDentist:"<<use>>"
+
+@enduml

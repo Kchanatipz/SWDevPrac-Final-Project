@@ -1,0 +1,115 @@
+@startuml Manage Booking
+
+title "Manage Booking"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:booking" as booking
+participant "<<middleware>>\n:auth" as middleware
+participant "<<service>>\n:jwt" as jwt
+participant "<<controllers>>\n:booking" as BookingControllers
+participant "<<model>>\n:booking" as BookingModel
+participant "<<model>>\n:user" as modelUser
+database "<<MongoDB>>\n:booking" as bookingDatabase
+database "<<MongoDB>>\n:dentist" as dentistDatebase
+database "<<MongoDB>>\n:user" as userDatabase
+
+client->server ++:req.post('/bookings')
+server->booking --++:app.use('api/v1/bookings',bookings)
+booking->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->booking --:next
+booking -> BookingControllers --++:addBooking
+BookingControllers->BookingModel ++:findById(req.params.dentistID)
+BookingModel ->dentistDatebase ++: DentistSchema
+dentistDatebase --> BookingModel --: dentist
+BookingControllers <-- BookingModel --:dentist
+BookingControllers->client :response
+
+BookingControllers->BookingModel ++:find({ user: req.user.id })
+BookingModel ->bookingDatabase ++:BookingSchema
+bookingDatabase --> BookingModel --:userBooking
+BookingModel --> BookingControllers --:userBooking
+
+BookingControllers->BookingModel ++:create(req.body)
+BookingModel->bookingDatabase ++:BookingSchema
+bookingDatabase-->BookingModel --:booking
+BookingModel-->BookingControllers --:booking
+BookingControllers -> client --: response
+
+client->server ++:req.get('/bookings')
+server->booking --++:app.use('api/v1/bookings',bookings)
+booking->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->booking --:next
+booking->BookingControllers --++:getBookings
+BookingControllers->BookingModel ++:find()
+BookingModel->bookingDatabase ++:BookingSchema
+bookingDatabase-->BookingModel --:booking
+BookingModel-->BookingControllers --:booking
+BookingControllers->client --:response
+
+client->server ++:req.get('/bookings/:id')
+server->booking --++:app.use('api/v1/bookings',bookings)
+booking->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->booking --:next
+booking->BookingControllers --++:getBookings
+BookingControllers->BookingModel ++:findById(req.param.id)
+BookingModel->bookingDatabase ++:BookingSchema
+bookingDatabase-->BookingModel --:booking
+BookingModel-->BookingControllers --:booking
+BookingControllers->client --:response
+
+client->server ++:req.put('/bookings/:id')
+server->booking --++:app.use('api/v1/bookings',bookings)
+booking->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->booking --:next
+booking->BookingControllers --++:updateBooking
+BookingControllers->BookingModel ++:findById(req.param.id)
+BookingModel->bookingDatabase ++:BookingSchema
+bookingDatabase-->BookingModel --:booking
+BookingModel-->BookingControllers --:booking
+BookingControllers->client :response
+BookingControllers->BookingModel ++:findByIdAndUpdate(req.params.id,\nreq.body,{new:true,\nrunValidators:true});
+BookingModel->bookingDatabase ++:BookingSchema
+bookingDatabase-->BookingModel --:booking
+BookingModel-->BookingControllers --:booking
+BookingControllers->client --:response
+
+client->server ++:req.delete('/bookings/:id')
+server->booking --++:app.use('api/v1/bookings',bookings)
+booking->middleware ++:protect
+middleware->jwt ++:verify(token,secret)
+jwt-->middleware --: decoded
+middleware->modelUser ++:findById(decoded.id)
+modelUser -> userDatabase ++:find(_id:decoded.id)
+userDatabase --> modelUser --:user
+modelUser-->middleware --:req.user
+middleware-->booking --:next
+booking->BookingControllers --++:deleteBooking
+BookingControllers->BookingModel ++:findByIdAndDelete(req.param.id)
+BookingModel->bookingDatabase ++:BookingSchema
+BookingControllers->client
+@enduml
