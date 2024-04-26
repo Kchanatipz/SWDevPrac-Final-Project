@@ -1,0 +1,64 @@
+@startuml Dentist system Use Case Diagram
+left to right direction
+actor "User" as user
+actor "Admin" as admin
+
+rectangle "Dentist Booking system" as dentistbookingSystem{
+    rectangle "Dentist System" as dentistsystem{
+        usecase "Get All dentists" as getAlldentists
+        usecase "Get dentist" as getSingledentist
+        usecase "Update dentist" as updateDentist
+        usecase "Create a dentist" as createdentist
+        usecase "Delete a dentist" as deletedentist
+    }
+
+    rectangle "Booking System" as Bookingsystem{
+        usecase "Get all bookings" as getAllBookings
+        usecase "Get Booking" as getMyBooking
+        usecase "Get my Booking" as getBookingofCurrentUser
+        usecase "Create Booking" as createBooking
+        usecase "Create my Booking" as createBookingforcurrentuser
+        usecase "Edit Booking" as updateBooking
+        usecase "Edit my Booking" as updateMyBooking
+        usecase "Delete Booking" as deleteBooking
+        usecase "Delete my Booking" as deletemyBooking
+    }
+
+    rectangle "Auth System" as Authsystem{
+        usecase "Register" as register
+        usecase "Login" as login
+        usecase "Logout" as logout
+        usecase "Reset Password" as resetPassword
+    }
+}
+
+user -- getAlldentists
+user -- getSingledentist
+user -- register
+user -- login
+user -- getMyBooking
+user -- createBookingforcurrentuser
+user -- updateMyBooking
+user -- deletemyBooking
+
+getAlldentists -- admin
+getSingledentist -- admin
+updateDentist -- admin
+createdentist -- admin
+updateDentist -- admin
+deletedentist -- admin
+getAllBookings -- admin
+getMyBooking -- admin
+getBookingofCurrentUser -- admin
+createBooking -- admin
+createBookingforcurrentuser -- admin
+updateBooking -- admin
+updateMyBooking -- admin
+deleteBooking -- admin
+deletemyBooking -- admin
+register -- admin
+login -- admin
+logout -- admin
+resetPassword -- admin
+
+@enduml
