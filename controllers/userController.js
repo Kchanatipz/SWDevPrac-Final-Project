@@ -55,7 +55,6 @@ exports.resetUserPassword = async (req, res, next) => {
 // access   Public
 exports.getResetPasswordUI = async (req, res, next) => {
   try {
-    const id = req.params.id;
     const options = { root: path.join(__dirname) };
 
     res.status(200).sendFile("index.html", options);
