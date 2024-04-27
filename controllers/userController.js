@@ -12,7 +12,7 @@ const HTML = `<!DOCTYPE html>
       button {background-color: #3498db;color: #fff;padding: 10px 20px;border: none;border-radius: 10px;cursor: pointer;transition: background-color 0.2s ease-in-out;}button:hover {background-color: #0c6cac;}</style></head>
   <body><div class="container"><h1>Click this button to reset your password</h1><form action="http://localhost:5200/api/v1/user/resetpassword/ui/`;
 
-// desc     Reset user's password
+// desc     Send reset password to user via email
 // route    POST /api/v1/user/resetpassword/:id
 // access   Public
 exports.resetUserPassword = async (req, res, next) => {
@@ -50,6 +50,9 @@ exports.resetUserPassword = async (req, res, next) => {
   }
 };
 
+// desc     Get Reset password UI
+// route    GET /api/v1/user/resetpassword/ui/:id
+// access   Public
 exports.getResetPasswordUI = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -62,6 +65,10 @@ exports.getResetPasswordUI = async (req, res, next) => {
   }
 };
 
+// desc     Reset user's password from getResetPasswordUI
+//          (id & newpassword in body)
+// route    PUT /api/v1/user/resetpassword/confirm
+// access   Public
 exports.confirmResetpassword = async (req, res, next) => {
   try {
     const id = req.body.id;
