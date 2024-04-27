@@ -12,6 +12,6 @@ const app = express();
 
 router.route("/resetpassword/confirm").put(confirmResetpassword);
 router.route("/resetpassword/ui/:id").get(getResetPasswordUI);
-router.route("/resetpassword/:id").put(resetUserPassword);
+router.route("/resetpassword/:id").put(protect, resetUserPassword);
 
 module.exports = router;
